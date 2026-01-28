@@ -113,6 +113,8 @@ Screens included in this repository demonstrate:
     <img src="BMI_calc/8.png" width="250">
     <img src="BMI_calc/9.png" width="250">
     <img src="BMI_calc/10.png" width="250">
+    <img src="BMI_calc/13-a.png" width="250">
+    <img src="BMI_calc/13-b.png" width="250">
   </li>
 </ul>
 
