@@ -76,8 +76,6 @@ A modern <b>BMI (Body Mass Index) Calculator</b> Android application built using
 Screens included in this repository demonstrate:
 </p>
 
-<h2>📱 Screenshots</h2>
-
 <ul>
   <li>
     <b>Male – Healthy BMI</b><br>
@@ -148,8 +146,7 @@ app/
  └── src/
      └── main/
          ├── java/
-         │   └── sc/android/bmi_calculator/
-         │       ├── MainActivity.kt
+         │   └── kush/android/bmi_calculator/
          │       ├── MainScreen.kt
          │       ├── BMI_Logic.kt
          │       └── ui/theme/
