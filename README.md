@@ -110,6 +110,22 @@ Screens included in this repository demonstrate:
   </li>
 </ul>
 
+<li>
+    <b>Mandatory Input</b><br>
+    <img src="BMI_calc/8.png" width="250">
+    <img src="BMI_calc/9.png" width="250">
+    <img src="BMI_calc/10.png" width="250">
+  </li>
+</ul>
+
+<li>
+    <b>Imperial to Metric on Single Input</b><br>
+    <img src="BMI_calc/11-a.png" width="250">
+    <img src="BMI_calc/11-b.png" width="250">
+    <img src="BMI_calc/12-a.png" width="250">
+    <img src="BMI_calc/12-b.png" width="250">
+  </li>
+</ul>
 
 <hr>
 
