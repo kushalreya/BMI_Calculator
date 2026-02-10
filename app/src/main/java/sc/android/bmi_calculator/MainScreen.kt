@@ -12,10 +12,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +34,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,8 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -95,56 +92,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun BMICircle(bmi: Float, modifier: Modifier) {
-
-    val sweepAngle = (bmi.coerceIn(0f, 50f) / 50f) * 360f
-
-    val bmiStatus = when {
-        bmi < 18.5 -> "Underweight"
-        bmi < 25f -> "Healthy"
-        bmi < 30f -> "Overweight"
-        else -> "Obese"
-    }
-
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            drawArc(
-                color = BorderColor,
-                startAngle = -90f,
-                sweepAngle = 360f,
-                useCenter = false,
-                style = Stroke(16f, cap = StrokeCap.Round)
-            )
-
-            val ringColor = bmiColor(bmi)
-
-            drawArc(
-                color = ringColor,
-                startAngle = -90f,
-                sweepAngle = sweepAngle,
-                useCenter = false,
-                style = Stroke(24f, cap = StrokeCap.Round)
-            )
-        }
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(String.format("%.1f", bmi), style = TitleText)
-            Text(bmiStatus, style = LabelText)
-        }
-    }
-}
-
-fun bmiColor(bmi: Float): Color =
-    when {
-        bmi < 18.5 -> Color(0xFFFFC857)
-        bmi < 25f -> Color(0xFF4CAF50)
-        bmi < 30f -> Color(0xFFFF9800)
-        else -> Color(0xFFF53F3B)
-    }
-
-
-@Composable
 fun BMICalculator(modifier: Modifier) {
 
     var isMetric by remember { mutableStateOf(true) }
@@ -158,6 +105,9 @@ fun BMICalculator(modifier: Modifier) {
 
     var lastBmi by remember { mutableStateOf<Float?>(null) }
 
+    // 🔴 ADD: driver state for animation
+    var displayBmi by remember { mutableStateOf(0f) }
+
     val context = LocalContext.current
 
     val heightValue = height.toFloatOrNull()
@@ -168,6 +118,13 @@ fun BMICalculator(modifier: Modifier) {
 
     val normalWeightText = healthyWeightRange(isMetric, height, isFemale)
 
+    // 🔴 ADD: trigger animation when result appears
+    LaunchedEffect(bmiCalculated) {
+        if (bmiCalculated != null) {
+            displayBmi = 0f
+            displayBmi = bmiCalculated!!
+        }
+    }
 
     Column(
         modifier = modifier.padding(top = 16.dp),
@@ -196,10 +153,8 @@ fun BMICalculator(modifier: Modifier) {
                         if (height.isNotBlank()) {
                             height = height.toFloatOrNull()?.let {
                                 if (toMetric) {
-                                    // ft → m
                                     (it / 3.28084f)
                                 } else {
-                                    // m → ft
                                     (it * 3.28084f)
                                 }
                             }?.let { String.format("%.2f", it) } ?: height
@@ -208,10 +163,8 @@ fun BMICalculator(modifier: Modifier) {
                         if (weight.isNotBlank()) {
                             weight = weight.toFloatOrNull()?.let {
                                 if (toMetric) {
-                                    // lb → kg
                                     (it / 2.20462f)
                                 } else {
-                                    // kg → lb
                                     (it * 2.20462f)
                                 }
                             }?.let { String.format("%.2f", it) } ?: weight
@@ -351,21 +304,14 @@ fun BMICalculator(modifier: Modifier) {
 
             Button(
                 onClick = {
+
                     val errorMessage = when {
                         heightValue == null || weightValue == null ->
                             "Please enter both height and weight"
-
                         heightValue <= 0f || weightValue <= 0f ->
                             "Height and weight must be greater than 0"
-
-                        heightValue < 0.5f -> {
-                            "Height seems too small"
-                        }
-
-                        weightValue < 5f -> {
-                            "Weight seems too low"
-                        }
-
+                        heightValue < 0.5f -> "Height seems too small"
+                        weightValue < 5f -> "Weight seems too low"
                         else -> null
                     }
 
@@ -375,10 +321,9 @@ fun BMICalculator(modifier: Modifier) {
                         return@Button
                     }
 
-                    // ✅ ACTUAL BMI CALCULATION
                     val bmi = bmiLogic(heightValue!!, weightValue!!, isMetric)
 
-                    // ✅ UPDATE BOTH STATES (THIS IS CRITICAL)
+                    displayBmi = 0f
                     bmiCalculated = bmi
                     lastBmi = bmi
                 },
@@ -415,8 +360,9 @@ fun BMICalculator(modifier: Modifier) {
 
                 val bmi = lastBmi ?: return@AnimatedVisibility
 
+                // 🔴 CHANGE: use displayBmi instead of bmi
                 BMICircle(
-                    bmi = bmi,
+                    bmi = displayBmi,
                     modifier = Modifier.size(180.dp)
                 )
 
